@@ -5,7 +5,7 @@
 # License: GPLv3
 # Version: 0.1.0
 
-required_system_utils="cut logger curl dirname"
+required_system_utils="cat cut logger curl dirname"
 for util in $required_system_utils; do
     command -v "$util" >/dev/null 2>&1 || {
         echo >&2 "Could not find $util. Please use your system package manager to install it."; exit 1;
@@ -16,44 +16,45 @@ NTFY_SERVER=
 TOPIC=
 TOKEN_FILE="$(dirname "$0")/mdadm-ntfy.token"
 if [ -f "$TOKEN_FILE" ]; then
-    NTFY_TOKEN=$(< "$TOKEN_FILE")
+    NTFY_TOKEN=$(cat "$TOKEN_FILE")
 fi
 
 send_message() {
-    local priority=$1
-    local summary=$2
-    local body=$3
-    local tag=""
-    local ntfy_server="${NTFY_SERVER:-https://ntfy.sh}"
-    local topic="${TOPIC:-mdadm}"
-    local curl_args=()
+    priority=$1
+    summary=$2
+    body=$3
+    tag=""
+    ntfy_server="${NTFY_SERVER:-https://ntfy.sh}"
+    topic="${TOPIC:-mdadm}"
 
     if [ "$priority" = 'urgent' ]; then
         tag='rotating_light'
     fi
 
-    curl_args=(
-        -H "Title: mdadm notification"
-        -H "Priority: $priority"
-    )
+    # Base curl options
+    headers="-H 'Priority: $priority'"
 
+    # Add optional tags header
     if [ -n "$tag" ]; then
-        curl_args+=(-H "Tags: $tag")
+        headers="$headers -H 'Tags: $tag'"
     fi
 
-    if [ -n "$body" ]; then
-        curl_args+=(-d "$summary
-
-$body")
-    else
-        curl_args+=(-d "$summary")
-    fi
-
+    # Add optional authorization header
     if [ -n "$NTFY_TOKEN" ]; then
-        curl_args+=(-H "Authorization: Bearer $NTFY_TOKEN")
+        headers="$headers -H 'Authorization: Bearer $NTFY_TOKEN'"
     fi
 
-    curl "${curl_args[@]}" "$ntfy_server/$topic"
+    # Define the message body
+    if [ -n "$body" ]; then
+        message="$summary
+
+$body"
+    else
+        message="$summary"
+    fi
+
+    # Execute the curl command
+    eval curl "$headers" -d "'$message'" "'$ntfy_server/$topic'"
 }
 
 EVENT=$1
