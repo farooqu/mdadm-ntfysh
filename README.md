@@ -5,29 +5,28 @@ notifications from `mdadm --monitor` by using ntfy.sh.
 
 It handles the following notifications (from `mdadm(8)`):
 
-| Notification | Urgency |
+| Notification | Message priority |
 |--------------|----------|
-|`DeviceDisappeared`| critical |
-|`RebuildStarted`| normal |
-|`RebuildNN`| normal |
-|`RebuildFinished` | normal |
-|`Fail`| critical |
-|`FailSpare`| critical |
-|`SpareActive`| normal |
-|`NewArray`| normal
-|`DegradedArray` | critical |
-| `MoveSpare` | normal |
-| `SparesMissing` | critical |
+|`DeviceDisappeared`| urgent |
+|`RebuildStarted`| default |
+|`RebuildNN`| default |
+|`RebuildFinished` | default |
+|`Fail`| urgent |
+|`FailSpare`| urgent |
+|`SpareActive`| default |
+|`NewArray`| default
+|`DegradedArray` | urgent |
+| `MoveSpare` | default |
+| `SparesMissing` | urgent |
 | `TestMessage` | low |
 
-All messages that are critical will never expire and thus require explicit
-interaction to dismiss them. All other messages have a timeout of 3 seconds,
-so the overlay will disappear but you can still find them in the notification
-area in case you missed them.
+Message priority and behavior is defined in the [ntfy.sh documentation](https://docs.ntfy.sh/publish/#message-priority).
 
 ## Installation
 
 * Put the script somewhere, ensure it's owned by root and executable
+* Create a mdadm-ntfy.token file containing an [Access token](https://docs.ntfy.sh/config/#access-tokens) if you'd like to use one
+* Override the NTFY_SERVER or TOPIC variables if you want. They default to ntfy.sh and mdadm.
 * Set the `PROGRAM` option in `mdadm.conf` to point to this script
 * (Re)start the mdadm or mdmonitor service
 
