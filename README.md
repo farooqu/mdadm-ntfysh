@@ -1,11 +1,7 @@
-# Desktop notifications for mdadm
+# ntfy.sh notifications for mdadm
 
-The `mdadm-notify` script is a little program that handles displaying
-notifications from `mdadm --monitor` by using the desktop notification system.
-To do so you have to have the `notify-send` binary available in your path,
-which usually comes with `libnotify` as well as a few other basic utilities
-that are documented in the script (they should be readily available on most
-Linux distributions as part of the base installation).
+The `mdadm-ntfy` script is a little program that handles displaying
+notifications from `mdadm --monitor` by using ntfy.sh.
 
 It handles the following notifications (from `mdadm(8)`):
 
