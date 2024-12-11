@@ -5,18 +5,22 @@
 # License: GPLv3
 # Version: 0.1.0
 
-required_system_utils="cat cut logger curl dirname"
+required_system_utils="read cut logger curl dirname"
 for util in $required_system_utils; do
     command -v "$util" >/dev/null 2>&1 || {
         echo >&2 "Could not find $util. Please use your system package manager to install it."; exit 1;
     }
 done
 
-NTFY_SERVER=
-TOPIC=
-TOKEN_FILE="$(dirname "$0")/mdadm-ntfy.token"
-if [ -f "$TOKEN_FILE" ]; then
-    NTFY_TOKEN=$(cat "$TOKEN_FILE")
+# Load the .env file if it exists
+if [ -f "$(dirname "$0")/.env" ]; then
+    while IFS='=' read -r key value || [ -n "$key" ]; do
+        # Ignore lines that are comments or empty
+        case "$key" in
+            ''|\#*) continue ;;
+            *) export "$key=$value" ;;
+        esac
+    done < "$(dirname "$0")/.env"
 fi
 
 send_message() {
@@ -24,8 +28,8 @@ send_message() {
     summary=$2
     body=$3
     tag=""
-    ntfy_server="${NTFY_SERVER:-https://ntfy.sh}"
-    topic="${TOPIC:-mdadm}"
+    ntfy_server="${NTFY_SERVER:-ntfy.sh}"
+    topic="${TOPIC:-mdadm-ntfy}"
 
     if [ "$priority" = 'urgent' ]; then
         tag='rotating_light'
@@ -33,6 +37,16 @@ send_message() {
 
     # Base curl options
     headers="-H 'Priority: $priority'"
+
+    # Add optional title header
+    if [ -n "$TITLE" ]; then
+        headers="$headers -H 'Title: $TITLE'"
+    fi
+
+    # Add optional icon header
+    if [ -n "$ICON" ]; then
+        headers="$headers -H 'Icon: $ICON'"
+    fi
 
     # Add optional tags header
     if [ -n "$tag" ]; then

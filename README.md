@@ -25,8 +25,12 @@ Message priority and behavior is defined in the [ntfy.sh documentation](https://
 ## Installation
 
 * Put the script somewhere, ensure it's owned by root and executable
-* Create a mdadm-ntfy.token file containing an [Access token](https://docs.ntfy.sh/config/#access-tokens) if you'd like to use one
-* Override the NTFY_SERVER or TOPIC variables if you want. They default to ntfy.sh and mdadm.
+* Create an optional .env file containing variables you would like to use, and place it next to the script.
+    * NTFY_TOKEN: An [Access token](https://docs.ntfy.sh/config/#access-tokens)
+    * NTFY_SERVER: The server you would like to use. Defaults to `ntfy.sh`
+    * TOPIC: The topic you want messages published to. Defaults to `mdadm-ntfy`
+    * TITLE: The title you want to use for messages. Not used if unset.
+    * ICON: The icon you want to use. Not used if unset.
 * Set the `PROGRAM` option in `mdadm.conf` to point to this script
 * (Re)start the mdadm or mdmonitor service
 
